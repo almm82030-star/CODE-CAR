@@ -206,7 +206,6 @@
         /* Custom File Input */
         input[type="file"]::file-selector-button {
             margin-left: 10px;
-            /* spacing for RTL */
             margin-right: 0;
             padding: 8px 12px;
             border-radius: 8px;
@@ -421,6 +420,23 @@
             padding: 5px;
         }
 
+        /* Admin Entry Link */
+        .admin-login-link {
+            color: var(--text-muted);
+            font-size: 12px;
+            text-decoration: none;
+            margin-top: 20px;
+            display: block;
+            text-align: center;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .admin-login-link:hover {
+            opacity: 1;
+            color: white;
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -531,8 +547,8 @@
         </div>
     </div>
 
-    <!-- LOGIN SCREEN -->
-    <div id="login-screen" class="container hidden">
+    <!-- PUBLIC SEARCH SCREEN (DEFAULT) -->
+    <div id="public-screen" class="container hidden">
         <div class="glass-panel text-center">
             <div class="logo-container">
                 <!-- Fallback Logo -->
@@ -542,44 +558,9 @@
                 <h2 data-i18n="app_subtitle">مجموعة الزهراني</h2>
             </div>
 
-            <form id="login-form">
-                <div class="input-group">
-                    <input type="text" id="login-username" class="input-field" placeholder="اسم المشروع / اسم المستخدم"
-                        required data-i18n-placeholder="login_placeholder">
-                </div>
-                <div class="input-group">
-                    <input type="password" id="login-password" class="input-field" placeholder="كلمة المرور" required
-                        data-i18n-placeholder="password_placeholder">
-                </div>
-                <div id="login-error" class="hidden" style="color: var(--error); margin-bottom: 15px; font-size: 14px;"
-                    data-i18n="login_error">
-                    بيانات الدخول غير صحيحة
-                </div>
-                <button type="submit" class="btn">
-                    <span data-i18n="login_btn">تسجيل الدخول</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                        <polyline points="10 17 15 12 10 7"></polyline>
-                        <line x1="15" y1="12" x2="3" y2="12"></line>
-                    </svg>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- USER DASHBOARD -->
-    <div id="user-dashboard" class="container hidden">
-        <div class="glass-panel">
-            <div class="dashboard-header">
-                <div>
-                    <div class="welcome-text" data-i18n="welcome">مرحباً بك</div>
-                    <div class="user-name" id="user-display-name">المشروع</div>
-                </div>
-                <button onclick="logout()" class="btn logout-btn" data-i18n="logout">خروج</button>
-            </div>
-
             <div class="text-center" style="margin-bottom: 30px;">
-                <h2 style="color: white; font-weight: 600;" data-i18n="search_title">استعلام عن كود الشريحة</h2>
+                <h2 style="color: white; font-weight: 600; font-size: 20px;" data-i18n="search_title">استعلام عن كود
+                    الشريحة</h2>
                 <p style="color: var(--text-muted); font-size: 14px;" data-i18n="search_desc">أدخل رقم اللوحة للحصول على
                     الكود الخاص بها</p>
             </div>
@@ -602,8 +583,44 @@
                 <div class="result-code" style="font-size:16px;" data-i18n="no_result">عذراً، اللوحة غير مسجلة في النظام
                 </div>
             </div>
+
+            <!-- Admin Login Link -->
+            <div onclick="showAdminLogin()" class="admin-login-link">
+                <!-- Lock Icon -->
+                <span style="font-size:14px;">🔒</span>
+                <span data-i18n="admin_login_link">دخول المدير</span>
+            </div>
         </div>
     </div>
+
+    <!-- ADMIN LOGIN SCREEN -->
+    <div id="login-screen" class="container hidden">
+        <div class="glass-panel text-center">
+            <h2 style="color: white; margin-bottom: 20px;" data-i18n="admin_panel_title">الدخول للوحة التحكم</h2>
+
+            <form id="login-form">
+                <div class="input-group">
+                    <input type="text" id="login-username" class="input-field" placeholder="اسم المستخدم" required
+                        data-i18n-placeholder="username_placeholder">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="login-password" class="input-field" placeholder="كلمة المرور" required
+                        data-i18n-placeholder="password_placeholder">
+                </div>
+                <div id="login-error" class="hidden" style="color: var(--error); margin-bottom: 15px; font-size: 14px;"
+                    data-i18n="login_error">
+                    بيانات الدخول غير صحيحة
+                </div>
+                <button type="submit" class="btn">
+                    <span data-i18n="login_btn">دخول</span>
+                </button>
+                <button type="button" onclick="showPublicScreen()" class="btn btn-secondary" data-i18n="back_btn">
+                    رجوع
+                </button>
+            </form>
+        </div>
+    </div>
+
 
     <!-- ADMIN DASHBOARD -->
     <div id="admin-dashboard" class="container hidden">
@@ -737,20 +754,22 @@
                 loading: "جاري الاتصال بالنظام...",
                 app_title: "نظام أكواد الشرائح",
                 app_subtitle: "مجموعة الزهراني",
-                login_placeholder: "اسم المشروع / اسم المستخدم",
-                password_placeholder: "كلمة المرور",
-                login_error: "بيانات الدخول غير صحيحة",
-                login_btn: "تسجيل الدخول",
-                welcome: "مرحباً بك",
-                logout: "خروج",
                 search_title: "استعلام عن كود الشريحة",
                 search_desc: "أدخل رقم اللوحة للحصول على الكود الخاص بها",
                 search_placeholder: "رقم اللوحة (مثال: أ ب ج 123)",
                 search_btn: "بحث عن الكود",
                 result_text: "كود الشريحة للوحة",
                 no_result: "عذراً، اللوحة غير مسجلة في النظام",
+                admin_login_link: "دخول المدير",
+                admin_panel_title: "الدخول للوحة التحكم",
+                username_placeholder: "اسم المستخدم",
+                password_placeholder: "كلمة المرور",
+                login_btn: "دخول",
+                back_btn: "رجوع",
+                login_error: "بيانات الدخول غير صحيحة",
                 admin_panel: "لوحة التحكم",
                 admin_name: "المدير: مهند",
+                logout: "خروج",
                 tab_plates: "اللوحات والأكواد",
                 tab_projects: "المشاريع",
                 add_plate_btn: "+ إضافة لوحة جديدة",
@@ -772,20 +791,22 @@
                 loading: "Connecting to system...",
                 app_title: "Chip Codes System",
                 app_subtitle: "Al-Zahrani Group",
-                login_placeholder: "Project Name / Username",
-                password_placeholder: "Password",
-                login_error: "Invalid Credentials",
-                login_btn: "Login",
-                welcome: "Welcome",
-                logout: "Logout",
                 search_title: "Search Plate Code",
                 search_desc: "Enter plate number to get its code",
                 search_placeholder: "Plate Number (e.g., ABC 123)",
                 search_btn: "Search Code",
                 result_text: "Code for plate",
                 no_result: "Sorry, plate not found in system",
+                admin_login_link: "Admin Login",
+                admin_panel_title: "Admin Login",
+                username_placeholder: "Username",
+                password_placeholder: "Password",
+                login_btn: "Login",
+                back_btn: "Back",
+                login_error: "Invalid Credentials",
                 admin_panel: "Admin Panel",
                 admin_name: "Admin: Mohanad",
+                logout: "Logout",
                 tab_plates: "Plates & Codes",
                 tab_projects: "Projects",
                 add_plate_btn: "+ Add New Plate",
@@ -844,7 +865,6 @@
         onValue(platesRef, (snapshot) => {
             const data = snapshot.val();
             db.plates = data || {};
-            // Make DB available globally for Excel function
             window.localDB = db;
             if (currentUser && currentUser.type === 'admin') renderPlatesList();
             checkReady();
@@ -860,91 +880,40 @@
 
         function checkReady() {
             document.getElementById('loading-screen').classList.add('hidden');
-            if (!currentUser) document.getElementById('login-screen').classList.remove('hidden');
+
+            // If logged in as admin, show admin dash.
+            // If not logged in, show Public Screen (default).
+            if (currentUser && currentUser.type === 'admin') {
+                openAdminDashboard();
+            } else {
+                showPublicScreen();
+            }
         }
 
-        // --- EXCEL LOGIC ---
-        window.handleExcelImport = function () {
-            const fileInput = document.getElementById('excel-file');
-            const file = fileInput.files[0];
-
-            if (!file) return alert('Please select a file first.');
-
-            const reader = new FileReader();
-
-            reader.onload = function (e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-
-                    // Assume first sheet
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-
-                    // Parse to JSON
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-
-                    // Process Data
-                    // Expected Columns: Code, Branch, Vehicle
-                    let successCount = 0;
-
-                    jsonData.forEach(row => {
-                        // Normalize Keys (handle case sensitivity)
-                        const keys = Object.keys(row);
-                        const getVal = (k) => {
-                            const found = keys.find(key => key.toLowerCase() === k.toLowerCase());
-                            return found ? row[found] : null;
-                        };
-
-                        const code = getVal('code');
-                        const project = getVal('branch');
-                        const plate = getVal('vehicle');
-
-                        if (code && plate) {
-                            // Add Plate
-                            window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'plates'), {
-                                plate: String(plate),
-                                code: String(code),
-                                project: String(project || '')
-                            });
-                            successCount++;
-                        }
-
-                        if (project) {
-                            // Add Project if unique? 
-                            // We'll just push for now, checking for duplicates on array level is hard with firebase push IDs.
-                            // Ideal: Check window.localDB.projects values
-                            const existingProjects = Object.values(window.localDB.projects || {});
-                            if (!existingProjects.includes(project)) {
-                                window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'projects'), String(project));
-                            }
-                        }
-                    });
-
-                    alert(`${translations[currentLang].import_success} (${successCount} records)`);
-                    fileInput.value = '';
-
-                } catch (err) {
-                    console.error(err);
-                    alert(translations[currentLang].import_error);
-                }
-            };
-
-            reader.readAsArrayBuffer(file);
+        // --- NAVIGATION ---
+        window.showPublicScreen = function () {
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('public-screen').classList.remove('hidden');
         };
 
+        window.showAdminLogin = function () {
+            document.getElementById('public-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        };
 
         // --- AUTH LOGIC ---
         window.addEventListener('DOMContentLoaded', () => {
-            // Re-apply headers
             applyLanguage();
 
             // Check session
             const session = sessionStorage.getItem('zahrani_session');
             if (session) {
                 const user = JSON.parse(session);
-                // Simple verify
-                if (user) loginSuccess(user);
+                if (user) currentUser = user;
             }
+            // Wait for firebase to checkReady
         });
 
         document.getElementById('login-form').addEventListener('submit', (e) => {
@@ -953,19 +922,9 @@
             const pass = document.getElementById('login-password').value.trim();
             const errorMsg = document.getElementById('login-error');
 
-            // Admin Logic
+            // Admin Logic Only
             if (user === 'مهند' && pass === '0906212775') {
                 loginSuccess({ type: 'admin', name: 'مهند' });
-                return;
-            }
-
-            // Project User Logic
-
-            const projectNames = Object.values(db.projects); // array of names
-            const validProject = projectNames.some(p => p.toLowerCase() === user.toLowerCase());
-
-            if (validProject && pass === '123321') {
-                loginSuccess({ type: 'user', name: user });
             } else {
                 errorMsg.classList.remove('hidden');
                 const panel = document.querySelector('.glass-panel');
@@ -983,26 +942,16 @@
             document.getElementById('login-error').classList.add('hidden');
             document.getElementById('login-form').reset();
 
-            if (userObj.type === 'admin') {
-                openAdminDashboard();
-            } else {
-                openUserDashboard();
-            }
+            openAdminDashboard();
         }
 
         window.logout = function () {
             sessionStorage.removeItem('zahrani_session');
             currentUser = null;
-            location.reload();
+            showPublicScreen();
         };
 
-        // --- USER DASHBOARD ---
-        function openUserDashboard() {
-            document.getElementById('user-dashboard').classList.remove('hidden');
-            const welcomeName = document.getElementById('user-display-name');
-            welcomeName.textContent = currentUser.name;
-        }
-
+        // --- USER SEARCH ---
         document.getElementById('search-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const query = document.getElementById('plate-search').value.trim();
@@ -1014,9 +963,14 @@
             if (!query) return;
 
             // Search in db.plates
-            // Structure in DB: { uniqueId: { plate: "ABC", code: "123" } }
             const records = Object.values(db.plates);
-            const found = records.find(p => p.plate === query);
+
+            // Normalize: Remove all non-alphanumeric chars and uppercase
+            // Example: "B X S - 7 5 0 3" -> "BXS7503"
+            const normalize = (str) => String(str).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            const target = normalize(query);
+
+            const found = records.find(p => normalize(p.plate) === target);
 
             if (found) {
                 resultBox.classList.remove('hidden');
@@ -1031,6 +985,8 @@
 
         // --- ADMIN DASHBOARD ---
         function openAdminDashboard() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('public-screen').classList.add('hidden');
             document.getElementById('admin-dashboard').classList.remove('hidden');
             renderPlatesList();
             renderProjectsList();
@@ -1055,7 +1011,6 @@
             const filter = document.getElementById('admin-search-plate').value.toLowerCase();
             list.innerHTML = '';
 
-            // db.plates is object { id: {plate, code} }
             Object.entries(db.plates).forEach(([key, item]) => {
                 const p = String(item.plate || '');
                 const c = String(item.code || '');
@@ -1084,7 +1039,6 @@
             const list = document.getElementById('projects-list');
             list.innerHTML = '';
 
-            // db.projects is { id: "Name" }
             Object.entries(db.projects).forEach(([key, val]) => {
                 const el = document.createElement('div');
                 el.className = 'list-item';
@@ -1109,7 +1063,6 @@
             const p = document.getElementById('new-plate-num').value;
             const c = document.getElementById('new-plate-code').value;
 
-            // Push to Firebase
             push(platesRef, { plate: p, code: c });
 
             closeModal('modal-add-plate');
@@ -1126,7 +1079,6 @@
             e.preventDefault();
             const n = document.getElementById('new-project-name').value;
 
-            // Push to Firebase
             push(projectsRef, n);
 
             closeModal('modal-add-project');
@@ -1137,6 +1089,67 @@
             if (confirm(translations[currentLang].confirm_delete)) {
                 remove(ref(database, `projects/${key}`));
             }
+        };
+
+        // --- EXCEL LOGIC ---
+        window.handleExcelImport = function () {
+            const fileInput = document.getElementById('excel-file');
+            const file = fileInput.files[0];
+
+            if (!file) return alert('Please select a file first.');
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                    let successCount = 0;
+
+                    jsonData.forEach(row => {
+                        const keys = Object.keys(row);
+                        const getVal = (k) => {
+                            const found = keys.find(key => key.toLowerCase() === k.toLowerCase());
+                            return found ? row[found] : null;
+                        };
+
+                        const code = getVal('code');
+                        const project = getVal('branch');
+                        let plate = getVal('vehicle');
+
+                        if (code && plate) {
+                            // Normalize Plate: Remove spaces, dashes, special chars
+                            plate = String(plate).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+                            window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'plates'), {
+                                plate: String(plate),
+                                code: String(code),
+                                project: String(project || '')
+                            });
+                            successCount++;
+                        }
+
+                        if (project) {
+                            const existingProjects = Object.values(window.localDB.projects || {});
+                            if (!existingProjects.includes(project)) {
+                                window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'projects'), String(project));
+                            }
+                        }
+                    });
+
+                    alert(`${translations[currentLang].import_success} (${successCount} records)`);
+                    fileInput.value = '';
+
+                } catch (err) {
+                    console.error(err);
+                    alert(translations[currentLang].import_error);
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
         };
 
         // --- MODAL UTILS ---
