@@ -1006,7 +1006,13 @@
             document.querySelectorAll('.search-tab').forEach(t => {
                 t.classList.remove('active');
             });
-            document.querySelector(`.search-tab[onclick*="${tab}"]`).classList.add('active');
+            
+            // Find and activate the correct tab
+            if (tab === 'plate') {
+                document.querySelector('.search-tab[onclick*="plate"]').classList.add('active');
+            } else {
+                document.querySelector('.search-tab[onclick*="code"]').classList.add('active');
+            }
             
             // Show/hide forms
             document.querySelectorAll('.search-form').forEach(form => {
@@ -1162,8 +1168,8 @@
 
         // --- USER SEARCH ---
         window.handleSearchByPlate = function (e) {
-            e.preventDefault();
-            const query = document.getElementById('plate-search').value;
+            if (e) e.preventDefault();
+            const query = document.getElementById('plate-search').value.trim();
             const resultBox = document.getElementById('search-by-plate-result');
             const codeResultBox = document.getElementById('search-by-code-result');
             const errorBox = document.getElementById('search-error');
@@ -1177,13 +1183,24 @@
 
             // Normalize Query
             const target = window.standardizePlate(query);
-            // console.log("Searching for normalized:", target);
 
             // Access Data
-            const records = db.plates ? Object.values(db.plates) : [];
+            const plates = db.plates || {};
+            const plateEntries = Object.entries(plates);
 
             // Find Match
-            const found = records.find(p => window.standardizePlate(p.plate) === target);
+            let found = null;
+            for (const [key, record] of plateEntries) {
+                if (!record) continue;
+                
+                const recordPlate = String(record.plate || '').trim();
+                const normalizedRecordPlate = window.standardizePlate(recordPlate);
+                
+                if (normalizedRecordPlate === target) {
+                    found = record;
+                    break;
+                }
+            }
 
             if (found) {
                 resultBox.classList.remove('hidden');
@@ -1191,7 +1208,7 @@
                 errorBox.classList.add('hidden');
 
                 // Display Format
-                resPlate.textContent = found.plate; // Show original format
+                resPlate.textContent = found.plate;
                 resCode.textContent = found.code;
             } else {
                 resultBox.classList.add('hidden');
@@ -1201,7 +1218,7 @@
         };
 
         window.handleSearchByCode = function (e) {
-            e.preventDefault();
+            if (e) e.preventDefault();
             const query = document.getElementById('code-search').value.trim();
             const plateResultBox = document.getElementById('search-by-plate-result');
             const resultBox = document.getElementById('search-by-code-result');
@@ -1216,10 +1233,22 @@
             }
 
             // Access Data
-            const records = db.plates ? Object.values(db.plates) : [];
+            const plates = db.plates || {};
+            const plateEntries = Object.entries(plates);
 
-            // Find Match by Code (exact match)
-            const found = records.find(p => String(p.code).trim() === query);
+            // Find Match by Code (case-insensitive, trim comparison)
+            let found = null;
+            for (const [key, record] of plateEntries) {
+                if (!record) continue;
+                
+                const recordCode = String(record.code || '').trim();
+                
+                // Case-insensitive comparison
+                if (recordCode.toLowerCase() === query.toLowerCase()) {
+                    found = record;
+                    break;
+                }
+            }
 
             if (found) {
                 plateResultBox.classList.add('hidden');
@@ -1228,7 +1257,7 @@
 
                 // Display Results
                 resCodeNumber.textContent = query;
-                resPlateFromCode.textContent = found.plate;
+                resPlateFromCode.textContent = found.plate || '';
 
                 // Add Additional Info
                 additionalInfo.innerHTML = '';
@@ -1239,7 +1268,7 @@
                 codeItem.className = 'result-item';
                 codeItem.innerHTML = `
                     <div class="result-item-label" data-i18n="code_label">كود الشريحة</div>
-                    <div class="result-item-value">${found.code}</div>
+                    <div class="result-item-value">${found.code || ''}</div>
                 `;
                 additionalInfo.appendChild(codeItem);
                 
@@ -1248,7 +1277,7 @@
                 plateItem.className = 'result-item';
                 plateItem.innerHTML = `
                     <div class="result-item-label" data-i18n="plate_label">رقم اللوحة</div>
-                    <div class="result-item-value">${found.plate}</div>
+                    <div class="result-item-value">${found.plate || ''}</div>
                 `;
                 additionalInfo.appendChild(plateItem);
                 
@@ -1306,7 +1335,11 @@
             const filter = document.getElementById('admin-search-plate').value.toLowerCase();
             list.innerHTML = '';
 
+            if (!db.plates) return;
+
             Object.entries(db.plates).forEach(([key, item]) => {
+                if (!item) return;
+                
                 const p = String(item.plate || '');
                 const c = String(item.code || '');
 
@@ -1334,7 +1367,11 @@
             const list = document.getElementById('projects-list');
             list.innerHTML = '';
 
+            if (!db.projects) return;
+
             Object.entries(db.projects).forEach(([key, val]) => {
+                if (!val) return;
+                
                 const el = document.createElement('div');
                 el.className = 'list-item';
                 el.innerHTML = `
@@ -1400,48 +1437,77 @@
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                    console.log('Excel Data:', jsonData);
 
                     let successCount = 0;
 
-                    jsonData.forEach(row => {
-                        const keys = Object.keys(row);
-                        const getVal = (k) => {
-                            const found = keys.find(key => key.toLowerCase() === k.toLowerCase());
-                            return found ? row[found] : null;
-                        };
+                    // Check the structure of the data
+                    if (jsonData.length > 0) {
+                        // Get headers from first row
+                        const headers = jsonData[0];
+                        console.log('Headers:', headers);
 
-                        const code = getVal('code');
-                        const project = getVal('branch');
-                        let plate = getVal('vehicle');
+                        // Find column indices
+                        const codeIndex = headers.findIndex(h => 
+                            String(h).toLowerCase().includes('code'));
+                        const plateIndex = headers.findIndex(h => 
+                            String(h).toLowerCase().includes('vehicle') || 
+                            String(h).toLowerCase().includes('plate'));
+                        const projectIndex = headers.findIndex(h => 
+                            String(h).toLowerCase().includes('branch') || 
+                            String(h).toLowerCase().includes('project'));
 
-                        if (code && plate) {
-                            // Normalize Plate using the global standardizer
-                            const cleanPlate = window.standardizePlate(plate);
+                        console.log('Indices:', { codeIndex, plateIndex, projectIndex });
 
-                            window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'plates'), {
-                                plate: String(cleanPlate),
-                                originalPlate: String(plate),
-                                code: String(code),
-                                project: String(project || '')
-                            });
-                            successCount++;
-                        }
+                        // Process rows starting from index 1 (skip header)
+                        for (let i = 1; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if (!row || row.length === 0) continue;
 
-                        if (project) {
-                            const existingProjects = Object.values(window.localDB.projects || {});
-                            if (!existingProjects.includes(project)) {
-                                window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'projects'), String(project));
+                            const code = codeIndex >= 0 ? String(row[codeIndex] || '').trim() : '';
+                            const plate = plateIndex >= 0 ? String(row[plateIndex] || '').trim() : '';
+                            const project = projectIndex >= 0 ? String(row[projectIndex] || '').trim() : '';
+
+                            console.log('Processing row:', { code, plate, project });
+
+                            if (code && plate) {
+                                // Clean plate number
+                                const cleanPlate = window.standardizePlate(plate);
+
+                                // Add to Firebase
+                                window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'plates'), {
+                                    plate: cleanPlate,
+                                    originalPlate: plate,
+                                    code: code,
+                                    project: project || ''
+                                });
+                                successCount++;
+                                console.log('Added:', { cleanPlate, code, project });
+                            }
+
+                            // Add project if it doesn't exist
+                            if (project) {
+                                // Check if project already exists
+                                const existingProjects = Object.values(db.projects || {});
+                                const projectExists = existingProjects.some(p => 
+                                    String(p).toLowerCase() === project.toLowerCase());
+                                
+                                if (!projectExists) {
+                                    window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'projects'), project);
+                                    console.log('Added project:', project);
+                                }
                             }
                         }
-                    });
+                    }
 
                     alert(`${translations[currentLang].import_success} (${successCount} records)`);
                     fileInput.value = '';
 
                 } catch (err) {
-                    console.error(err);
-                    alert(translations[currentLang].import_error);
+                    console.error('Excel Import Error:', err);
+                    alert(`${translations[currentLang].import_error}: ${err.message}`);
                 }
             };
 
