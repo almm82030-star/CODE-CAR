@@ -565,12 +565,12 @@
                     الكود الخاص بها</p>
             </div>
 
-            <form id="search-form" onsubmit="handleSearch(event)">
+            <form id="search-form">
                 <div class="input-group">
                     <input type="text" id="plate-search" class="input-field" placeholder="رقم اللوحة (مثال: أ ب ج 123)"
                         required data-i18n-placeholder="search_placeholder">
                 </div>
-                <button type="button" onclick="handleSearch()" class="btn" data-i18n="search_btn">بحث عن الكود</button>
+                <button type="submit" class="btn" data-i18n="search_btn">بحث عن الكود</button>
             </form>
 
             <div id="search-result" class="result-card hidden">
@@ -1027,9 +1027,10 @@
         };
 
         // Attach to form submit for Enter key support
+        // Attach to form submit for Enter key support and Button Click
         const searchForm = document.getElementById('search-form');
         if (searchForm) {
-            searchForm.onsubmit = window.handleSearch;
+            searchForm.addEventListener('submit', window.handleSearch);
         }
 
         // --- ADMIN DASHBOARD ---
