@@ -27,7 +27,6 @@
             --text-muted: #94a3b8;
             --success: #10b981;
             --error: #ef4444;
-            --info: #3B82F6;
         }
 
         * {
@@ -115,18 +114,6 @@
             }
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
         .container {
             width: 100%;
             max-width: 500px;
@@ -136,6 +123,7 @@
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
             border-radius: 24px;
             padding: 40px;
@@ -181,8 +169,7 @@
             margin-bottom: 10px;
             background: linear-gradient(to right, #fff, #94a3b8);
             -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            -webkit-text-fill-color: transparent;
         }
 
         h2 {
@@ -190,38 +177,6 @@
             color: var(--text-muted);
             margin-bottom: 30px;
             font-weight: 400;
-        }
-
-        /* Search Tabs */
-        .search-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 5px;
-        }
-
-        .search-tab {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .search-tab.active {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
-        }
-
-        .search-tab:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.1);
         }
 
         /* Forms */
@@ -249,8 +204,20 @@
         }
 
         /* Custom File Input */
-        input[type="file"] {
+        input[type="file"]::file-selector-button {
+            margin-left: 10px;
+            margin-right: 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
             cursor: pointer;
+        }
+
+        html[dir="ltr"] input[type="file"]::file-selector-button {
+            margin-left: 0;
+            margin-right: 10px;
         }
 
         .input-field:focus {
@@ -306,10 +273,6 @@
             background: linear-gradient(135deg, #ef4444, #b91c1c);
         }
 
-        .btn-info {
-            background: linear-gradient(135deg, var(--info), #1D4ED8);
-        }
-
         /* Dashboard UI */
         .dashboard-header {
             display: flex;
@@ -360,11 +323,6 @@
             animation: fadeIn 0.4s ease-out;
         }
 
-        .result-card.info {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
         .result-title {
             color: var(--text-muted);
             font-size: 14px;
@@ -379,14 +337,6 @@
             letter-spacing: 2px;
         }
 
-        .result-info {
-            font-family: monospace;
-            font-size: 28px;
-            color: var(--info);
-            font-weight: 800;
-            letter-spacing: 2px;
-        }
-
         .no-result {
             background: rgba(239, 68, 68, 0.1);
             border-color: rgba(239, 68, 68, 0.3);
@@ -397,35 +347,6 @@
             font-size: 18px;
             font-family: 'Tajawal', 'Outfit', sans-serif;
             letter-spacing: 0;
-        }
-
-        /* Search Results Grid */
-        .results-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .result-item {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 15px;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .result-item-label {
-            color: var(--text-muted);
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        .result-item-value {
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            word-break: break-all;
         }
 
         /* Admin Panels */
@@ -497,9 +418,6 @@
             border: none;
             cursor: pointer;
             padding: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         /* Admin Entry Link */
@@ -561,7 +479,6 @@
             color: var(--text-muted);
             font-size: 20px;
             cursor: pointer;
-            padding: 5px;
         }
 
         /* Scrollbar */
@@ -611,14 +528,6 @@
                 transform: rotate(360deg);
             }
         }
-
-        /* Firefox scrollbar */
-        @supports (scrollbar-color: auto) {
-            * {
-                scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
-                scrollbar-width: thin;
-            }
-        }
     </style>
 </head>
 
@@ -650,22 +559,14 @@
             </div>
 
             <div class="text-center" style="margin-bottom: 30px;">
-                <h2 style="color: white; font-weight: 600; font-size: 20px;" data-i18n="search_title">استعلام عن أكواد الشرائح</h2>
-                <p style="color: var(--text-muted); font-size: 14px;" data-i18n="search_desc">ابحث برقم اللوحة أو كود الشريحة</p>
-            </div>
-
-            <!-- Search Tabs -->
-            <div class="search-tabs">
-                <div class="search-tab active" onclick="switchSearchTab('plate')" data-i18n="tab_plate_search">
-                    بحث برقم اللوحة
-                </div>
-                <div class="search-tab" onclick="switchSearchTab('code')" data-i18n="tab_code_search">
-                    بحث بالكود
-                </div>
+                <h2 style="color: white; font-weight: 600; font-size: 20px;" data-i18n="search_title">استعلام عن كود
+                    الشريحة</h2>
+                <p style="color: var(--text-muted); font-size: 14px;" data-i18n="search_desc">أدخل رقم اللوحة للحصول على
+                    الكود الخاص بها</p>
             </div>
 
             <!-- Search by Plate Form -->
-            <form id="search-by-plate-form" class="search-form">
+            <form id="search-by-plate-form" class="search-form" onsubmit="handleSearchByPlate(event)">
                 <div class="input-group">
                     <input type="text" id="plate-search" class="input-field" placeholder="رقم اللوحة (مثال: أ ب ج 123)"
                         required data-i18n-placeholder="search_plate_placeholder">
@@ -674,7 +575,7 @@
             </form>
 
             <!-- Search by Code Form -->
-            <form id="search-by-code-form" class="search-form hidden">
+            <form id="search-by-code-form" class="search-form hidden" onsubmit="handleSearchByCode(event)">
                 <div class="input-group">
                     <input type="text" id="code-search" class="input-field" placeholder="كود الشريحة (مثال: 123456)"
                         required data-i18n-placeholder="search_code_placeholder">
@@ -682,41 +583,20 @@
                 <button type="submit" class="btn btn-info" data-i18n="search_code_btn">بحث عن اللوحة</button>
             </form>
 
-            <!-- Results Container -->
-            <div id="search-results-container">
-                <!-- Search by Plate Result -->
-                <div id="search-by-plate-result" class="result-card hidden">
-                    <div class="result-title">
-                        <span data-i18n="result_text">كود الشريحة للوحة</span> 
-                        <span id="res-plate" style="color:white; font-weight:bold;"></span>
-                    </div>
-                    <div class="result-code" id="res-code">...</div>
-                </div>
+            <div id="search-result" class="result-card hidden">
+                <div class="result-title"><span data-i18n="result_text">كود الشريحة للوحة</span> <span id="res-plate"
+                        style="color:white; font-weight:bold;"></span></div>
+                <div class="result-code" id="res-code">...</div>
+            </div>
 
-                <!-- Search by Code Result -->
-                <div id="search-by-code-result" class="result-card info hidden">
-                    <div class="result-title">
-                        <span data-i18n="result_text_code">اللوحة المرتبطة بالكود</span> 
-                        <span id="res-code-number" style="color:white; font-weight:bold;"></span>
-                    </div>
-                    <div class="result-info" id="res-plate-from-code">...</div>
-                    
-                    <!-- Additional Info -->
-                    <div id="additional-info" class="results-grid hidden">
-                        <!-- Will be populated by JavaScript -->
-                    </div>
-                </div>
-
-                <!-- No Results Message -->
-                <div id="search-error" class="result-card no-result hidden">
-                    <div class="result-code" style="font-size:16px;" data-i18n="no_result">
-                        عذراً، لم يتم العثور على نتيجة
-                    </div>
+            <div id="search-error" class="result-card no-result hidden">
+                <div class="result-code" style="font-size:16px;" data-i18n="no_result">عذراً، اللوحة غير مسجلة في النظام
                 </div>
             </div>
 
             <!-- Admin Login Link -->
             <div onclick="showAdminLogin()" class="admin-login-link">
+                <!-- Lock Icon -->
                 <span style="font-size:14px;">🔒</span>
                 <span data-i18n="admin_login_link">دخول المدير</span>
             </div>
@@ -750,6 +630,7 @@
             </form>
         </div>
     </div>
+
 
     <!-- ADMIN DASHBOARD -->
     <div id="admin-dashboard" class="container hidden">
@@ -876,7 +757,6 @@
         let db = { projects: {}, plates: {} };
         let currentUser = null;
         let currentLang = 'ar';
-        let currentSearchTab = 'plate';
 
         // Translation Dictionary
         const translations = {
@@ -884,17 +764,12 @@
                 loading: "جاري الاتصال بالنظام...",
                 app_title: "نظام أكواد الشرائح",
                 app_subtitle: "مجموعة الزهراني",
-                search_title: "استعلام عن أكواد الشرائح",
-                search_desc: "ابحث برقم اللوحة أو كود الشريحة",
-                tab_plate_search: "بحث برقم اللوحة",
-                tab_code_search: "بحث بالكود",
-                search_plate_placeholder: "رقم اللوحة (مثال: أ ب ج 123)",
-                search_code_placeholder: "كود الشريحة (مثال: 123456)",
-                search_plate_btn: "بحث عن الكود",
-                search_code_btn: "بحث عن اللوحة",
+                search_title: "استعلام عن كود الشريحة",
+                search_desc: "أدخل رقم اللوحة للحصول على الكود الخاص بها",
+                search_placeholder: "رقم اللوحة (مثال: أ ب ج 123)",
+                search_btn: "بحث عن الكود",
                 result_text: "كود الشريحة للوحة",
-                result_text_code: "اللوحة المرتبطة بالكود",
-                no_result: "عذراً، لم يتم العثور على نتيجة",
+                no_result: "عذراً، اللوحة غير مسجلة في النظام",
                 admin_login_link: "دخول المدير",
                 admin_panel_title: "الدخول للوحة التحكم",
                 username_placeholder: "اسم المستخدم",
@@ -920,23 +795,18 @@
                 import_excel_label: "استيراد بيانات من ملف Excel (Code, Branch, Vehicle)",
                 import_btn: "رفع الملف",
                 import_success: "تم استيراد البيانات بنجاح!",
-                import_error: "حدث خطأ في قراءة الملف"
+                import_error: "حدث خطأ في قراءة المف"
             },
             en: {
                 loading: "Connecting to system...",
                 app_title: "Chip Codes System",
                 app_subtitle: "Al-Zahrani Group",
-                search_title: "Chip Codes Inquiry",
-                search_desc: "Search by plate number or chip code",
-                tab_plate_search: "Search by Plate",
-                tab_code_search: "Search by Code",
-                search_plate_placeholder: "Plate Number (e.g., ABC 123)",
-                search_code_placeholder: "Chip Code (e.g., 123456)",
-                search_plate_btn: "Search for Code",
-                search_code_btn: "Search for Plate",
+                search_title: "Search Plate Code",
+                search_desc: "Enter plate number to get its code",
+                search_placeholder: "Plate Number (e.g., ABC 123)",
+                search_btn: "Search Code",
                 result_text: "Code for plate",
-                result_text_code: "Plate associated with code",
-                no_result: "Sorry, no results found",
+                no_result: "Sorry, plate not found in system",
                 admin_login_link: "Admin Login",
                 admin_panel_title: "Admin Login",
                 username_placeholder: "Username",
@@ -996,46 +866,6 @@
                     el.placeholder = translations[currentLang][key];
                 }
             });
-        };
-
-        // --- SEARCH TAB SWITCHING ---
-        window.switchSearchTab = function (tab) {
-            currentSearchTab = tab;
-            
-            // Update active tab
-            document.querySelectorAll('.search-tab').forEach(t => {
-                t.classList.remove('active');
-            });
-            
-            // Find and activate the correct tab
-            if (tab === 'plate') {
-                document.querySelector('.search-tab[onclick*="plate"]').classList.add('active');
-            } else {
-                document.querySelector('.search-tab[onclick*="code"]').classList.add('active');
-            }
-            
-            // Show/hide forms
-            document.querySelectorAll('.search-form').forEach(form => {
-                form.classList.add('hidden');
-            });
-            
-            if (tab === 'plate') {
-                document.getElementById('search-by-plate-form').classList.remove('hidden');
-            } else {
-                document.getElementById('search-by-code-form').classList.remove('hidden');
-            }
-            
-            // Clear results
-            clearSearchResults();
-        };
-
-        // --- CLEAR SEARCH RESULTS ---
-        function clearSearchResults() {
-            document.getElementById('search-by-plate-result').classList.add('hidden');
-            document.getElementById('search-by-code-result').classList.add('hidden');
-            document.getElementById('search-error').classList.add('hidden');
-            document.getElementById('plate-search').value = '';
-            document.getElementById('code-search').value = '';
         }
 
         // --- FIREBASE SYNC ---
@@ -1046,7 +876,6 @@
             const data = snapshot.val();
             db.plates = data || {};
             window.localDB = db;
-            console.log('Plates loaded:', Object.keys(db.plates).length, 'records');
             if (currentUser && currentUser.type === 'admin') renderPlatesList();
             checkReady();
         });
@@ -1155,7 +984,13 @@
 
         window.standardizePlate = function (input) {
             if (!input) return '';
-            let s = String(input).toUpperCase();
+            let s = String(input);
+
+            // 0. Replace Arabic Integers (٠-٩) with English Integers (0-9)
+            const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            s = s.replace(/[٠-٩]/g, w => arabicDigits.indexOf(w));
+
+            s = s.toUpperCase();
 
             // 1. Replace Standard Arabic Letters with English Counterparts
             s = s.split('').map(char => arabicToEnglishMap[char] || char).join('');
@@ -1168,11 +1003,12 @@
         };
 
         // --- USER SEARCH ---
-        window.handleSearchByPlate = function (e) {
-            if (e) e.preventDefault();
-            const query = document.getElementById('plate-search').value.trim();
-            const resultBox = document.getElementById('search-by-plate-result');
-            const codeResultBox = document.getElementById('search-by-code-result');
+        window.handleSearch = function (e) {
+            // Prevent form submit if called from form
+            if (e && e.preventDefault) e.preventDefault();
+
+            const query = document.getElementById('plate-search').value;
+            const resultBox = document.getElementById('search-result');
             const errorBox = document.getElementById('search-error');
             const resPlate = document.getElementById('res-plate');
             const resCode = document.getElementById('res-code');
@@ -1184,141 +1020,34 @@
 
             // Normalize Query
             const target = window.standardizePlate(query);
-            console.log('Searching for plate (normalized):', target);
+            // console.log("Searching for normalized:", target);
 
             // Access Data
-            const plates = db.plates || {};
-            const plateEntries = Object.entries(plates);
+            const records = db.plates ? Object.values(db.plates) : [];
 
             // Find Match
-            let found = null;
-            for (const [key, record] of plateEntries) {
-                if (!record) continue;
-                
-                const recordPlate = String(record.plate || '').trim();
-                const normalizedRecordPlate = window.standardizePlate(recordPlate);
-                
-                if (normalizedRecordPlate === target) {
-                    found = record;
-                    break;
-                }
-            }
+            // We optimize search by normalizing the DB record exactly the same way
+            const found = records.find(p => window.standardizePlate(p.plate) === target);
 
             if (found) {
                 resultBox.classList.remove('hidden');
-                codeResultBox.classList.add('hidden');
                 errorBox.classList.add('hidden');
 
                 // Display Format
-                resPlate.textContent = found.plate;
+                resPlate.textContent = found.plate; // Show original format
                 resCode.textContent = found.code;
             } else {
                 resultBox.classList.add('hidden');
-                codeResultBox.classList.add('hidden');
                 errorBox.classList.remove('hidden');
             }
         };
 
-        window.handleSearchByCode = function (e) {
-            if (e) e.preventDefault();
-            const query = document.getElementById('code-search').value.trim();
-            const plateResultBox = document.getElementById('search-by-plate-result');
-            const resultBox = document.getElementById('search-by-code-result');
-            const errorBox = document.getElementById('search-error');
-            const resCodeNumber = document.getElementById('res-code-number');
-            const resPlateFromCode = document.getElementById('res-plate-from-code');
-            const additionalInfo = document.getElementById('additional-info');
-
-            if (!query) {
-                alert(currentLang === 'ar' ? "الرجاء إدخال كود الشريحة" : "Please enter chip code");
-                return;
-            }
-
-            console.log('Searching for code:', query);
-
-            // Access Data
-            const plates = db.plates || {};
-            const plateEntries = Object.entries(plates);
-
-            // Find Match by Code (case-insensitive, trim comparison)
-            let found = null;
-            for (const [key, record] of plateEntries) {
-                if (!record) continue;
-                
-                const recordCode = String(record.code || '').trim();
-                
-                // Exact match first
-                if (recordCode === query) {
-                    found = record;
-                    break;
-                }
-                
-                // Try case-insensitive match
-                if (recordCode.toLowerCase() === query.toLowerCase()) {
-                    found = record;
-                    break;
-                }
-            }
-
-            if (found) {
-                plateResultBox.classList.add('hidden');
-                resultBox.classList.remove('hidden');
-                errorBox.classList.add('hidden');
-
-                // Display Results
-                resCodeNumber.textContent = query;
-                resPlateFromCode.textContent = found.plate || '';
-
-                console.log('Found by code:', found);
-
-                // Add Additional Info
-                additionalInfo.innerHTML = '';
-                additionalInfo.classList.remove('hidden');
-                
-                // Code
-                const codeItem = document.createElement('div');
-                codeItem.className = 'result-item';
-                codeItem.innerHTML = `
-                    <div class="result-item-label" data-i18n="code_label">كود الشريحة</div>
-                    <div class="result-item-value">${found.code || ''}</div>
-                `;
-                additionalInfo.appendChild(codeItem);
-                
-                // Plate
-                const plateItem = document.createElement('div');
-                plateItem.className = 'result-item';
-                plateItem.innerHTML = `
-                    <div class="result-item-label" data-i18n="plate_label">رقم اللوحة</div>
-                    <div class="result-item-value">${found.plate || ''}</div>
-                `;
-                additionalInfo.appendChild(plateItem);
-                
-                // Project if exists
-                if (found.project) {
-                    const projectItem = document.createElement('div');
-                    projectItem.className = 'result-item';
-                    projectItem.style.gridColumn = '1 / span 2';
-                    projectItem.innerHTML = `
-                        <div class="result-item-label" data-i18n="project_label">المشروع</div>
-                        <div class="result-item-value">${found.project}</div>
-                    `;
-                    additionalInfo.appendChild(projectItem);
-                }
-                
-                // Apply language to new elements
-                applyLanguage();
-
-            } else {
-                plateResultBox.classList.add('hidden');
-                resultBox.classList.add('hidden');
-                errorBox.classList.remove('hidden');
-                console.log('Code not found');
-            }
-        };
-
-        // Attach form events
-        document.getElementById('search-by-plate-form').addEventListener('submit', window.handleSearchByPlate);
-        document.getElementById('search-by-code-form').addEventListener('submit', window.handleSearchByCode);
+        // Attach to form submit for Enter key support
+        // Attach to form submit for Enter key support and Button Click
+        const searchForm = document.getElementById('search-form');
+        if (searchForm) {
+            searchForm.addEventListener('submit', window.handleSearch);
+        }
 
         // --- ADMIN DASHBOARD ---
         function openAdminDashboard() {
@@ -1332,10 +1061,7 @@
         window.switchAdminTab = function (tab) {
             const tabs = document.querySelectorAll('.admin-nav .nav-btn');
             tabs.forEach(t => t.classList.remove('active'));
-            
-            // Find the clicked button
-            const clickedBtn = event.target.closest('.nav-btn');
-            if (clickedBtn) clickedBtn.classList.add('active');
+            event.target.classList.add('active');
 
             if (tab === 'plates') {
                 document.getElementById('tab-plates').classList.remove('hidden');
@@ -1351,11 +1077,7 @@
             const filter = document.getElementById('admin-search-plate').value.toLowerCase();
             list.innerHTML = '';
 
-            if (!db.plates) return;
-
             Object.entries(db.plates).forEach(([key, item]) => {
-                if (!item) return;
-                
                 const p = String(item.plate || '');
                 const c = String(item.code || '');
 
@@ -1367,8 +1089,8 @@
                             <span class="item-main">${p}</span>
                             <span class="item-sub">${c}</span>
                         </div>
-                        <button onclick="deletePlate('${key}')" class="delete-btn" title="حذف">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <button onclick="deletePlate('${key}')" class="delete-btn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
@@ -1383,19 +1105,15 @@
             const list = document.getElementById('projects-list');
             list.innerHTML = '';
 
-            if (!db.projects) return;
-
             Object.entries(db.projects).forEach(([key, val]) => {
-                if (!val) return;
-                
                 const el = document.createElement('div');
                 el.className = 'list-item';
                 el.innerHTML = `
                     <div class="item-info">
                         <span class="item-main">${val}</span>
                     </div>
-                    <button onclick="deleteProject('${key}')" class="delete-btn" title="حذف">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button onclick="deleteProject('${key}')" class="delete-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                         </svg>
@@ -1408,21 +1126,13 @@
         // --- ADMIN ACTIONS (FIREBASE) ---
         window.handleAddPlate = function (e) {
             e.preventDefault();
-            const p = document.getElementById('new-plate-num').value.trim();
-            const c = document.getElementById('new-plate-code').value.trim();
-
-            if (!p || !c) {
-                alert(currentLang === 'ar' ? 'الرجاء إدخال جميع البيانات' : 'Please enter all data');
-                return;
-            }
+            const p = document.getElementById('new-plate-num').value;
+            const c = document.getElementById('new-plate-code').value;
 
             push(platesRef, { plate: p, code: c });
 
             closeModal('modal-add-plate');
             e.target.reset();
-            
-            // Refresh the list
-            renderPlatesList();
         };
 
         window.deletePlate = function (key) {
@@ -1433,20 +1143,12 @@
 
         window.handleAddProject = function (e) {
             e.preventDefault();
-            const n = document.getElementById('new-project-name').value.trim();
-
-            if (!n) {
-                alert(currentLang === 'ar' ? 'الرجاء إدخال اسم المشروع' : 'Please enter project name');
-                return;
-            }
+            const n = document.getElementById('new-project-name').value;
 
             push(projectsRef, n);
 
             closeModal('modal-add-project');
             e.target.reset();
-            
-            // Refresh the list
-            renderProjectsList();
         };
 
         window.deleteProject = function (key) {
@@ -1460,10 +1162,7 @@
             const fileInput = document.getElementById('excel-file');
             const file = fileInput.files[0];
 
-            if (!file) {
-                alert(currentLang === 'ar' ? 'الرجاء اختيار ملف أولاً' : 'Please select a file first.');
-                return;
-            }
+            if (!file) return alert('Please select a file first.');
 
             const reader = new FileReader();
 
@@ -1472,45 +1171,39 @@
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    
-                    // Convert to JSON with headers
                     const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                    console.log('Excel data loaded:', jsonData.length, 'rows');
 
                     let successCount = 0;
 
-                    jsonData.forEach((row, index) => {
-                        // Get values based on possible column names
-                        const code = row['Code'] || row['code'] || row['الكود'] || row['كود'] || '';
-                        const plate = row['Vehicle'] || row['vehicle'] || row['Plate'] || row['plate'] || 
-                                    row['المركبة'] || row['مركبة'] || row['اللوحة'] || row['لوحة'] || '';
-                        const project = row['Branch'] || row['branch'] || row['Project'] || row['project'] || 
-                                      row['الفرع'] || row['فرع'] || row['المشروع'] || row['مشروع'] || '';
+                    jsonData.forEach(row => {
+                        const keys = Object.keys(row);
+                        const getVal = (k) => {
+                            const found = keys.find(key => key.toLowerCase() === k.toLowerCase());
+                            return found ? row[found] : null;
+                        };
+
+                        const code = getVal('code');
+                        const project = getVal('branch');
+                        let plate = getVal('vehicle');
 
                         if (code && plate) {
-                            // Clean plate number
+                            // Normalize Plate using the global standardizer
+                            // This ensures that even if Excel has 'B X S - 123', it is stored as 'BXS123'
                             const cleanPlate = window.standardizePlate(plate);
 
-                            // Add to Firebase
                             window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'plates'), {
-                                plate: cleanPlate,
-                                originalPlate: plate,
-                                code: String(code).trim(),
-                                project: String(project).trim() || ''
+                                plate: String(cleanPlate), // Store the standardized version for consistency
+                                originalPlate: String(plate), // Store original just in case
+                                code: String(code),
+                                project: String(project || '')
                             });
                             successCount++;
                         }
 
-                        // Add project if it doesn't exist
                         if (project) {
-                            const projectStr = String(project).trim();
-                            // Check if project already exists
-                            const existingProjects = Object.values(db.projects || {});
-                            const projectExists = existingProjects.some(p => 
-                                String(p).toLowerCase() === projectStr.toLowerCase());
-                            
-                            if (!projectExists) {
-                                window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'projects'), projectStr);
+                            const existingProjects = Object.values(window.localDB.projects || {});
+                            if (!existingProjects.includes(project)) {
+                                window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'projects'), String(project));
                             }
                         }
                     });
@@ -1519,14 +1212,9 @@
                     fileInput.value = '';
 
                 } catch (err) {
-                    console.error('Excel Import Error:', err);
-                    alert(`${translations[currentLang].import_error}: ${err.message}`);
+                    console.error(err);
+                    alert(translations[currentLang].import_error);
                 }
-            };
-
-            reader.onerror = function (e) {
-                console.error('File reading error:', e);
-                alert(currentLang === 'ar' ? 'خطأ في قراءة الملف' : 'Error reading file');
             };
 
             reader.readAsArrayBuffer(file);
