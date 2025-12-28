@@ -136,7 +136,6 @@
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
             border-radius: 24px;
             padding: 40px;
@@ -182,7 +181,8 @@
             margin-bottom: 10px;
             background: linear-gradient(to right, #fff, #94a3b8);
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
         }
 
         h2 {
@@ -249,20 +249,8 @@
         }
 
         /* Custom File Input */
-        input[type="file"]::file-selector-button {
-            margin-left: 10px;
-            margin-right: 0;
-            padding: 8px 12px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
+        input[type="file"] {
             cursor: pointer;
-        }
-
-        html[dir="ltr"] input[type="file"]::file-selector-button {
-            margin-left: 0;
-            margin-right: 10px;
         }
 
         .input-field:focus {
@@ -509,6 +497,9 @@
             border: none;
             cursor: pointer;
             padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Admin Entry Link */
@@ -570,6 +561,7 @@
             color: var(--text-muted);
             font-size: 20px;
             cursor: pointer;
+            padding: 5px;
         }
 
         /* Scrollbar */
@@ -617,6 +609,14 @@
 
             100% {
                 transform: rotate(360deg);
+            }
+        }
+
+        /* Firefox scrollbar */
+        @supports (scrollbar-color: auto) {
+            * {
+                scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+                scrollbar-width: thin;
             }
         }
     </style>
@@ -1046,6 +1046,7 @@
             const data = snapshot.val();
             db.plates = data || {};
             window.localDB = db;
+            console.log('Plates loaded:', Object.keys(db.plates).length, 'records');
             if (currentUser && currentUser.type === 'admin') renderPlatesList();
             checkReady();
         });
@@ -1183,6 +1184,7 @@
 
             // Normalize Query
             const target = window.standardizePlate(query);
+            console.log('Searching for plate (normalized):', target);
 
             // Access Data
             const plates = db.plates || {};
@@ -1232,6 +1234,8 @@
                 return;
             }
 
+            console.log('Searching for code:', query);
+
             // Access Data
             const plates = db.plates || {};
             const plateEntries = Object.entries(plates);
@@ -1243,7 +1247,13 @@
                 
                 const recordCode = String(record.code || '').trim();
                 
-                // Case-insensitive comparison
+                // Exact match first
+                if (recordCode === query) {
+                    found = record;
+                    break;
+                }
+                
+                // Try case-insensitive match
                 if (recordCode.toLowerCase() === query.toLowerCase()) {
                     found = record;
                     break;
@@ -1258,6 +1268,8 @@
                 // Display Results
                 resCodeNumber.textContent = query;
                 resPlateFromCode.textContent = found.plate || '';
+
+                console.log('Found by code:', found);
 
                 // Add Additional Info
                 additionalInfo.innerHTML = '';
@@ -1285,7 +1297,7 @@
                 if (found.project) {
                     const projectItem = document.createElement('div');
                     projectItem.className = 'result-item';
-                    projectItem.style.gridColumn = 'span 2';
+                    projectItem.style.gridColumn = '1 / span 2';
                     projectItem.innerHTML = `
                         <div class="result-item-label" data-i18n="project_label">المشروع</div>
                         <div class="result-item-value">${found.project}</div>
@@ -1300,6 +1312,7 @@
                 plateResultBox.classList.add('hidden');
                 resultBox.classList.add('hidden');
                 errorBox.classList.remove('hidden');
+                console.log('Code not found');
             }
         };
 
@@ -1319,7 +1332,10 @@
         window.switchAdminTab = function (tab) {
             const tabs = document.querySelectorAll('.admin-nav .nav-btn');
             tabs.forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            
+            // Find the clicked button
+            const clickedBtn = event.target.closest('.nav-btn');
+            if (clickedBtn) clickedBtn.classList.add('active');
 
             if (tab === 'plates') {
                 document.getElementById('tab-plates').classList.remove('hidden');
@@ -1351,8 +1367,8 @@
                             <span class="item-main">${p}</span>
                             <span class="item-sub">${c}</span>
                         </div>
-                        <button onclick="deletePlate('${key}')" class="delete-btn">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <button onclick="deletePlate('${key}')" class="delete-btn" title="حذف">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
@@ -1378,8 +1394,8 @@
                     <div class="item-info">
                         <span class="item-main">${val}</span>
                     </div>
-                    <button onclick="deleteProject('${key}')" class="delete-btn">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button onclick="deleteProject('${key}')" class="delete-btn" title="حذف">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                         </svg>
@@ -1392,13 +1408,21 @@
         // --- ADMIN ACTIONS (FIREBASE) ---
         window.handleAddPlate = function (e) {
             e.preventDefault();
-            const p = document.getElementById('new-plate-num').value;
-            const c = document.getElementById('new-plate-code').value;
+            const p = document.getElementById('new-plate-num').value.trim();
+            const c = document.getElementById('new-plate-code').value.trim();
+
+            if (!p || !c) {
+                alert(currentLang === 'ar' ? 'الرجاء إدخال جميع البيانات' : 'Please enter all data');
+                return;
+            }
 
             push(platesRef, { plate: p, code: c });
 
             closeModal('modal-add-plate');
             e.target.reset();
+            
+            // Refresh the list
+            renderPlatesList();
         };
 
         window.deletePlate = function (key) {
@@ -1409,12 +1433,20 @@
 
         window.handleAddProject = function (e) {
             e.preventDefault();
-            const n = document.getElementById('new-project-name').value;
+            const n = document.getElementById('new-project-name').value.trim();
+
+            if (!n) {
+                alert(currentLang === 'ar' ? 'الرجاء إدخال اسم المشروع' : 'Please enter project name');
+                return;
+            }
 
             push(projectsRef, n);
 
             closeModal('modal-add-project');
             e.target.reset();
+            
+            // Refresh the list
+            renderProjectsList();
         };
 
         window.deleteProject = function (key) {
@@ -1428,7 +1460,10 @@
             const fileInput = document.getElementById('excel-file');
             const file = fileInput.files[0];
 
-            if (!file) return alert('Please select a file first.');
+            if (!file) {
+                alert(currentLang === 'ar' ? 'الرجاء اختيار ملف أولاً' : 'Please select a file first.');
+                return;
+            }
 
             const reader = new FileReader();
 
@@ -1437,70 +1472,48 @@
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-
-                    console.log('Excel Data:', jsonData);
+                    
+                    // Convert to JSON with headers
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    console.log('Excel data loaded:', jsonData.length, 'rows');
 
                     let successCount = 0;
 
-                    // Check the structure of the data
-                    if (jsonData.length > 0) {
-                        // Get headers from first row
-                        const headers = jsonData[0];
-                        console.log('Headers:', headers);
+                    jsonData.forEach((row, index) => {
+                        // Get values based on possible column names
+                        const code = row['Code'] || row['code'] || row['الكود'] || row['كود'] || '';
+                        const plate = row['Vehicle'] || row['vehicle'] || row['Plate'] || row['plate'] || 
+                                    row['المركبة'] || row['مركبة'] || row['اللوحة'] || row['لوحة'] || '';
+                        const project = row['Branch'] || row['branch'] || row['Project'] || row['project'] || 
+                                      row['الفرع'] || row['فرع'] || row['المشروع'] || row['مشروع'] || '';
 
-                        // Find column indices
-                        const codeIndex = headers.findIndex(h => 
-                            String(h).toLowerCase().includes('code'));
-                        const plateIndex = headers.findIndex(h => 
-                            String(h).toLowerCase().includes('vehicle') || 
-                            String(h).toLowerCase().includes('plate'));
-                        const projectIndex = headers.findIndex(h => 
-                            String(h).toLowerCase().includes('branch') || 
-                            String(h).toLowerCase().includes('project'));
+                        if (code && plate) {
+                            // Clean plate number
+                            const cleanPlate = window.standardizePlate(plate);
 
-                        console.log('Indices:', { codeIndex, plateIndex, projectIndex });
+                            // Add to Firebase
+                            window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'plates'), {
+                                plate: cleanPlate,
+                                originalPlate: plate,
+                                code: String(code).trim(),
+                                project: String(project).trim() || ''
+                            });
+                            successCount++;
+                        }
 
-                        // Process rows starting from index 1 (skip header)
-                        for (let i = 1; i < jsonData.length; i++) {
-                            const row = jsonData[i];
-                            if (!row || row.length === 0) continue;
-
-                            const code = codeIndex >= 0 ? String(row[codeIndex] || '').trim() : '';
-                            const plate = plateIndex >= 0 ? String(row[plateIndex] || '').trim() : '';
-                            const project = projectIndex >= 0 ? String(row[projectIndex] || '').trim() : '';
-
-                            console.log('Processing row:', { code, plate, project });
-
-                            if (code && plate) {
-                                // Clean plate number
-                                const cleanPlate = window.standardizePlate(plate);
-
-                                // Add to Firebase
-                                window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'plates'), {
-                                    plate: cleanPlate,
-                                    originalPlate: plate,
-                                    code: code,
-                                    project: project || ''
-                                });
-                                successCount++;
-                                console.log('Added:', { cleanPlate, code, project });
-                            }
-
-                            // Add project if it doesn't exist
-                            if (project) {
-                                // Check if project already exists
-                                const existingProjects = Object.values(db.projects || {});
-                                const projectExists = existingProjects.some(p => 
-                                    String(p).toLowerCase() === project.toLowerCase());
-                                
-                                if (!projectExists) {
-                                    window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'projects'), project);
-                                    console.log('Added project:', project);
-                                }
+                        // Add project if it doesn't exist
+                        if (project) {
+                            const projectStr = String(project).trim();
+                            // Check if project already exists
+                            const existingProjects = Object.values(db.projects || {});
+                            const projectExists = existingProjects.some(p => 
+                                String(p).toLowerCase() === projectStr.toLowerCase());
+                            
+                            if (!projectExists) {
+                                window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'projects'), projectStr);
                             }
                         }
-                    }
+                    });
 
                     alert(`${translations[currentLang].import_success} (${successCount} records)`);
                     fileInput.value = '';
@@ -1509,6 +1522,11 @@
                     console.error('Excel Import Error:', err);
                     alert(`${translations[currentLang].import_error}: ${err.message}`);
                 }
+            };
+
+            reader.onerror = function (e) {
+                console.error('File reading error:', e);
+                alert(currentLang === 'ar' ? 'خطأ في قراءة الملف' : 'Error reading file');
             };
 
             reader.readAsArrayBuffer(file);
