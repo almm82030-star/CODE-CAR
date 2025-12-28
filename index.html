@@ -565,12 +565,12 @@
                     الكود الخاص بها</p>
             </div>
 
-            <form id="search-form">
+            <form id="search-form" onsubmit="handleSearch(event)">
                 <div class="input-group">
                     <input type="text" id="plate-search" class="input-field" placeholder="رقم اللوحة (مثال: أ ب ج 123)"
                         required data-i18n-placeholder="search_placeholder">
                 </div>
-                <button type="submit" class="btn" data-i18n="search_btn">بحث عن الكود</button>
+                <button type="button" onclick="handleSearch()" class="btn" data-i18n="search_btn">بحث عن الكود</button>
             </form>
 
             <div id="search-result" class="result-card hidden">
@@ -951,37 +951,86 @@
             showPublicScreen();
         };
 
+        // --- PLATE NORMALIZATION HELPERS ---
+        const arabicToEnglishMap = {
+            'أ': 'A', 'ا': 'A',
+            'ب': 'B',
+            'ح': 'J',
+            'د': 'D',
+            'ر': 'R',
+            'س': 'S',
+            'ص': 'X',
+            'ط': 'T',
+            'ع': 'E',
+            'ق': 'G',
+            'ك': 'K',
+            'ل': 'L',
+            'م': 'Z',
+            'ن': 'N',
+            'ه': 'H', 'هـ': 'H',
+            'و': 'U',
+            'ى': 'V', 'ي': 'V'
+        };
+
+        window.standardizePlate = function (input) {
+            if (!input) return '';
+            let s = String(input).toUpperCase();
+
+            // 1. Replace Standard Arabic Letters with English Counterparts
+            s = s.split('').map(char => arabicToEnglishMap[char] || char).join('');
+
+            // 2. Remove ANY non-alphanumeric character (Spaces, Dashes, etc)
+            // This leaves only A-Z and 0-9
+            s = s.replace(/[^A-Z0-9]/g, '');
+
+            return s;
+        };
+
         // --- USER SEARCH ---
-        document.getElementById('search-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const query = document.getElementById('plate-search').value.trim();
+        window.handleSearch = function (e) {
+            // Prevent form submit if called from form
+            if (e && e.preventDefault) e.preventDefault();
+
+            const query = document.getElementById('plate-search').value;
             const resultBox = document.getElementById('search-result');
             const errorBox = document.getElementById('search-error');
             const resPlate = document.getElementById('res-plate');
             const resCode = document.getElementById('res-code');
 
-            if (!query) return;
+            if (!query) {
+                alert(currentLang === 'ar' ? "الرجاء إدخال رقم اللوحة" : "Please enter a plate number");
+                return;
+            }
 
-            // Search in db.plates
-            const records = Object.values(db.plates);
+            // Normalize Query
+            const target = window.standardizePlate(query);
+            // console.log("Searching for normalized:", target);
 
-            // Normalize: Remove all non-alphanumeric chars and uppercase
-            // Example: "B X S - 7 5 0 3" -> "BXS7503"
-            const normalize = (str) => String(str).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-            const target = normalize(query);
+            // Access Data
+            const records = db.plates ? Object.values(db.plates) : [];
 
-            const found = records.find(p => normalize(p.plate) === target);
+            // Find Match
+            // We optimize search by normalizing the DB record exactly the same way
+            const found = records.find(p => window.standardizePlate(p.plate) === target);
 
             if (found) {
                 resultBox.classList.remove('hidden');
                 errorBox.classList.add('hidden');
-                resPlate.textContent = found.plate;
+
+                // Display Format
+                resPlate.textContent = found.plate; // Show original format
                 resCode.textContent = found.code;
             } else {
                 resultBox.classList.add('hidden');
                 errorBox.classList.remove('hidden');
             }
-        });
+        };
+
+        // Attach to form submit for Enter key support
+        const searchForm = document.getElementById('search-form');
+        if (searchForm) {
+            searchForm.onsubmit = window.handleSearch;
+        }
 
         // --- ADMIN DASHBOARD ---
         function openAdminDashboard() {
@@ -1121,11 +1170,13 @@
                         let plate = getVal('vehicle');
 
                         if (code && plate) {
-                            // Normalize Plate: Remove spaces, dashes, special chars
-                            plate = String(plate).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                            // Normalize Plate using the global standardizer
+                            // This ensures that even if Excel has 'B X S - 123', it is stored as 'BXS123'
+                            const cleanPlate = window.standardizePlate(plate);
 
                             window.firebaseDB.push(window.firebaseDB.ref(window.firebaseDB.database, 'plates'), {
-                                plate: String(plate),
+                                plate: String(cleanPlate), // Store the standardized version for consistency
+                                originalPlate: String(plate), // Store original just in case
                                 code: String(code),
                                 project: String(project || '')
                             });
